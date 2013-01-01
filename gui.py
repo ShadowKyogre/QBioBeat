@@ -2,6 +2,7 @@ from PyQt4 import QtGui,QtCore
 import os
 import biorhythm
 import datetime
+import colorbutton
 
 colors={"physical":QtGui.QColor("pink"),
 			"emotional":QtGui.QColor("green"),
@@ -23,8 +24,10 @@ class QBioBeat(QtGui.QMainWindow):
 		self.scene=QtGui.QGraphicsScene(self)
 		self.view=QtGui.QGraphicsView(self.scene,self)
 		self.setCentralWidget(self.view)
-		self.dialog=None
+		self.reportparams=None
+		self.chartappearance=None
 		self.browseRhythm()
+		self.tweakAppearance()
 
 		exitAction = QtGui.QAction(QtGui.QIcon.fromTheme('application-exit'), 'Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
@@ -121,6 +124,7 @@ class QBioBeat(QtGui.QMainWindow):
 			for result in biorhythm.biorhythm_intervals(bdate,sdate,edate,cv,interval):
 				path.lineTo(result[0]*max_width/days,-result[1]*height)
 				#print(result)
+			print(colors[cv].name())
 			self.scene.addPath(path,QtGui.QPen(colors[cv]))
 		nf=QtGui.QFont()
 		nf.setPixelSize(height/3)
@@ -133,16 +137,40 @@ class QBioBeat(QtGui.QMainWindow):
 		txt=self.scene.addText('End time: {}'.format(edate.strftime("%m/%d/%Y - %H:%M:%S")))
 		txt.setFont(nf)
 		txt.setY(-height-height/3)
+	
+	def updateColors(self, color, coltype):
+		colors[coltype]=color
+		print("sasa",coltype,color.name())
+		self.plot()
+
+	def tweakAppearance(self):
+		if self.chartappearance is not None:
+			self.chartappearance.show()
+			return
+		self.chartappearance=QtGui.QDockWidget(self)
+		self.chartappearance.setWindowTitle("Chart Appearance")
+
+		w=QtGui.QWidget(self.reportparams)
+		layout=QtGui.QGridLayout(w)
+		i=0
+		for k in colors.keys():
+			layout.addWidget(QtGui.QLabel(k.title()),i,0)
+			b=colorbutton.QColorButton(color=colors[k])
+			b.colorChanged.connect(lambda x: self.updateColors(x,k))
+			layout.addWidget(b,i,1)
+			i+=1
+		self.chartappearance.setWidget(w)
+		self.chartappearance.show()
+		self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.chartappearance)
 
 	def browseRhythm(self):
-		if self.dialog is not None:
-				self.dialog.show()
+		if self.reportparams is not None:
+				self.reportparams.show()
 				return
-		self.dialog=QtGui.QDockWidget(self)
-		self.dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose,True)
-		self.dialog.setWindowTitle("Browse Rhythm")
+		self.reportparams=QtGui.QDockWidget(self)
+		self.reportparams.setWindowTitle("Report Parameters")
 
-		w=QtGui.QWidget(self.dialog)
+		w=QtGui.QWidget(self.reportparams)
 		layout=QtGui.QGridLayout(w)
 
 		self.startdt=QtGui.QDateTimeEdit(w)
@@ -170,9 +198,9 @@ class QBioBeat(QtGui.QMainWindow):
 		layout.addWidget(self.enddt,2,1)
 		layout.addWidget(rhytypes,3,0,1,2)
 
-		self.dialog.setWidget(w)
-		self.dialog.show()
-		self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dialog)
+		self.reportparams.setWidget(w)
+		self.reportparams.show()
+		self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.reportparams)
 
 def main():
 	global formats

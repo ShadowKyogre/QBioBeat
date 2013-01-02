@@ -23,7 +23,9 @@ class QBioBeatConfig:
 			("awareness",QtGui.QColor("yellow")),
 			("aesthetic",QtGui.QColor("magenta")),
 			("intuition",QtGui.QColor("orange")),
-			("grid",QtGui.QColor("black"))])
+			("grid",QtGui.QColor("black")),
+			("baseline",QtGui.QColor("red")),
+			("background",QtGui.QColor("white"))])
 		self.enabled=od([("physical",False),
 			("emotional",False),
 			("intellectual",False),
@@ -53,9 +55,11 @@ class QBioBeatConfig:
 		self.settings.endGroup()
 
 		self.settings.beginGroup("LastChartAppearance")
+		self.bgop=self.settings.value('backgroundOpacity',0,type=int)
 		self.height=self.settings.value('height',400,type=int)
 		self.width=self.settings.value('width',1000,type=int)
 		self.font=QtGui.QFont(self.settings.value('font',''))
+		self.show_panel=self.settings.value('showPanel',False,type=bool)
 		self.settings.beginGroup("colors")
 		for k in self.colors.keys():
 				if self.settings.contains(k):
@@ -77,9 +81,11 @@ class QBioBeatConfig:
 		self.settings.endGroup()
 
 		self.settings.beginGroup("LastChartAppearance")
+		self.settings.setValue('backgroundOpacity',self.bgop)
 		self.settings.setValue('height',self.height)
 		self.settings.setValue('width',self.width)
 		self.settings.setValue('font',self.font.family())
+		self.settings.setValue('showPanel',self.show_panel)
 		self.settings.beginGroup("colors")
 		for k in self.colors.keys():
 				self.settings.setValue(k,self.colors[k].name())

@@ -41,6 +41,7 @@ class QBioBeat(QtGui.QMainWindow):
 		#toolbar.addAction(saveIMGAction)
 
 	def close(self):
+		print("Saving configuration...")
 		qtrcfg.save_settings()
 		super().close()
 
@@ -113,7 +114,11 @@ class QBioBeat(QtGui.QMainWindow):
 		days=(edate-sdate).days
 		halfheight=qtrcfg.height
 		for i in range(int(-halfheight),int(halfheight),int(halfheight/10)):
-				self.scene.addLine(0,i,qtrcfg.width,i,pen=QtGui.QPen(qtrcfg.colors["grid"]))
+				if i == 0:
+					key="baseline"
+				else:
+					key="grid"
+				self.scene.addLine(0,i,qtrcfg.width,i,pen=QtGui.QPen(qtrcfg.colors[key]))
 		for i in range(days+1):
 				j=qtrcfg.width/days*i if i > 0 else 0
 				#print(j)
@@ -180,6 +185,15 @@ class QBioBeat(QtGui.QMainWindow):
 		qtrcfg.colors[coltype]=color
 		self.plot()
 
+	def updateShowPanel(self, checked):
+		qtrcfg.show_panel=checked
+		self.plot()
+
+	def updateBG(self, val):
+		colorcopy=QtGui.QColor(qtrcfg.colors["background"])
+		colorcopy.setAlpha(val)
+		self.scene.setBackgroundBrush(QtGui.QBrush(colorcopy))
+
 	def tweakAppearance(self):
 		if self.chartappearance is not None:
 			self.chartappearance.show()
@@ -204,25 +218,32 @@ class QBioBeat(QtGui.QMainWindow):
 		fb.fontChanged.connect(self.updateFont)
 		layout.addWidget(fb,i,1)
 
-		layout.addWidget(QtGui.QLabel("Grid height"),i+1,0)
-		layout.addWidget(QtGui.QLabel("Grid width"),i+2,0)
+		spinbox=QtGui.QSpinBox(w)
+		spinbox.setRange(0,255)
+		spinbox.setValue(qtrcfg.bgop)
+		spinbox.valueChanged[int].connect(self.updateBG)
+		layout.addWidget(QtGui.QLabel("Background Opacity"),i+1,0)
+		layout.addWidget(spinbox,i+1,1)
+
+		layout.addWidget(QtGui.QLabel("Grid height"),i+2,0)
+		layout.addWidget(QtGui.QLabel("Grid width"),i+3,0)
 		spinbox=QtGui.QSpinBox(w)
 		spinbox.setRange(0,2000)
 		spinbox.setValue(qtrcfg.height)
 		spinbox.setSuffix("px")
 		spinbox.valueChanged[int].connect(self.updateHeight)
-		layout.addWidget(spinbox,i+1,1)
+		layout.addWidget(spinbox,i+2,1)
 
 		spinbox=QtGui.QSpinBox(w)
 		spinbox.setRange(0,2000)
 		spinbox.setValue(qtrcfg.width)
 		spinbox.setSuffix("px")
 		spinbox.valueChanged[int].connect(self.updateWidth)
-		layout.addWidget(spinbox,i+2,1)
+		layout.addWidget(spinbox,i+3,1)
 
 		self.show_panel=QtGui.QCheckBox("Show chart making information?",w)
-		self.show_panel.clicked.connect(self.plot)
-		layout.addWidget(self.show_panel,i+3,0,1,2)
+		self.show_panel.clicked.connect(self.updateShowPanel)
+		layout.addWidget(self.show_panel,i+4,0,1,2)
 		
 		self.chartappearance.setWidget(w)
 		self.chartappearance.show()

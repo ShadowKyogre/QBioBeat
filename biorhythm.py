@@ -31,10 +31,9 @@ def biorhythm_intervals(birthday,startdate,enddate,cycleval,interval=100):
 			days_passed+=gap/interval
 	return results
 
-now=datetime.datetime.now()
-
 if __name__ == "__main__":
 	import sys
+	now=datetime.datetime.now()
 	for d in sys.argv[1:]:
 		print("Biorhythm values for a person born on {}".format(d))
 		try:

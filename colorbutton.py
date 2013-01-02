@@ -7,7 +7,7 @@ class QColorButton(QtGui.QWidget):
 	def __init__(self, color=None, parent=None):
 		super().__init__(parent)
 
-		layout=QtGui.QHBoxLayout(self)
+		layout=QtGui.QVBoxLayout(self)
 		self.label=QtGui.QLabel(self)
 		self.label.setAutoFillBackground(True)
 		self.button=QtGui.QPushButton(self)

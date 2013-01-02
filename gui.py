@@ -1,24 +1,28 @@
 from PyQt4 import QtGui,QtCore
+from collections import OrderedDict as od
 import os
-import biorhythm
 import datetime
-import colorbutton
 
-colors={"physical":QtGui.QColor("pink"),
-			"emotional":QtGui.QColor("green"),
-			"intellectual":QtGui.QColor("cyan"),
-			"spiritual":QtGui.QColor("white"),
-			"awareness":QtGui.QColor("yellow"),
-			"aesthetic":QtGui.QColor("magenta"),
-			"intuition":QtGui.QColor("orange"),
-			"grid":QtGui.QColor("black")}
+import biorhythm
+import colorbutton
+import fontbutton
+
+colors=od([("physical",QtGui.QColor("pink")),
+			("emotional",QtGui.QColor("green")),
+			("intellectual",QtGui.QColor("cyan")),
+			("spiritual",QtGui.QColor("white")),
+			("awareness",QtGui.QColor("yellow")),
+			("aesthetic",QtGui.QColor("magenta")),
+			("intuition",QtGui.QColor("orange")),
+			("grid",QtGui.QColor("black"))])
 interval=100
 height=200
 xstretch=5
 max_width=1000
+nf=QtGui.QFont()
 
 class QBioBeat(QtGui.QMainWindow):
-	def __init__(self):
+	def __init__(self, *args, **kwargs):
 		super().__init__()
 		self.setWindowTitle("QBioBeat")
 		self.scene=QtGui.QGraphicsScene(self)
@@ -108,14 +112,13 @@ class QBioBeat(QtGui.QMainWindow):
 		bdate=self.bdt.dateTime().toPyDateTime()
 		sdate=self.startdt.dateTime().toPyDateTime()
 		edate=self.enddt.dateTime().toPyDateTime()
-		#print(bday)
 		days=(edate-sdate).days
 		for i in range(int(-height),int(height),int(height/10)):
 				self.scene.addLine(0,i,max_width,i,pen=QtGui.QPen(colors["grid"]))
 		for i in range(1,days+1):
-				j=height/days*i
+				j=max_width/days*i
 				#print(j)
-				self.scene.addLine(j*xstretch,-height,j*xstretch,height,pen=QtGui.QPen(colors["grid"]))
+				self.scene.addLine(j,-height,j,height,pen=QtGui.QPen(colors["grid"]))
 		for button in self.qbg.buttons():
 			if not button.isChecked():
 					continue
@@ -123,10 +126,8 @@ class QBioBeat(QtGui.QMainWindow):
 			cv=button.text().lower()
 			for result in biorhythm.biorhythm_intervals(bdate,sdate,edate,cv,interval):
 				path.lineTo(result[0]*max_width/days,-result[1]*height)
-				#print(result)
 			print(colors[cv].name())
 			self.scene.addPath(path,QtGui.QPen(colors[cv]))
-		nf=QtGui.QFont()
 		nf.setPixelSize(height/3)
 		txt=self.scene.addText('Birth date: {}'.format(bdate.strftime("%m/%d/%Y - %H:%M:%S")))
 		txt.setY(-height-height)
@@ -138,9 +139,13 @@ class QBioBeat(QtGui.QMainWindow):
 		txt.setFont(nf)
 		txt.setY(-height-height/3)
 	
+	def updateFont(self, font):
+		global nf
+		nf=font
+		self.plot()
+
 	def updateColors(self, color, coltype):
 		colors[coltype]=color
-		print("sasa",coltype,color.name())
 		self.plot()
 
 	def tweakAppearance(self):
@@ -153,12 +158,20 @@ class QBioBeat(QtGui.QMainWindow):
 		w=QtGui.QWidget(self.reportparams)
 		layout=QtGui.QGridLayout(w)
 		i=0
+		#The connect wrapper is solely to deal with PyQt's odd behavior of directly
+		#connecting in a for loop...
+		connectWrapper = lambda b,k: b.colorChanged.connect(lambda x: self.updateColors(x,k))
 		for k in colors.keys():
 			layout.addWidget(QtGui.QLabel(k.title()),i,0)
 			b=colorbutton.QColorButton(color=colors[k])
-			b.colorChanged.connect(lambda x: self.updateColors(x,k))
+			connectWrapper(b,k)
 			layout.addWidget(b,i,1)
 			i+=1
+		layout.addWidget(QtGui.QLabel("Text"),i,0)
+		fb=fontbutton.QFontButton(font=nf)
+		fb.fontChanged.connect(self.updateFont)
+		layout.addWidget(fb,i,1)
+		
 		self.chartappearance.setWidget(w)
 		self.chartappearance.show()
 		self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.chartappearance)
@@ -185,7 +198,9 @@ class QBioBeat(QtGui.QMainWindow):
 		self.qbg=QtGui.QButtonGroup(vbox)
 		self.qbg.setExclusive(False)
 		self.qbg.buttonClicked.connect(lambda x: self.plot())
-		for k in biorhythm.CYCLE_PERIODS.keys():
+		for k in colors.keys():
+			if k not in biorhythm.CYCLE_PERIODS.keys():
+				break
 			b=QtGui.QCheckBox(k.title(),rhytypes)
 			self.qbg.addButton(b)
 			vbox.addWidget(b)

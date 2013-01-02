@@ -2,10 +2,10 @@ from PyQt4 import QtCore,QtGui
 
 class QColorButton(QtGui.QWidget):
 
-	color_changed = QtCore.pyqtSignal('QColor',name='colorChanged')
+	colorChanged = QtCore.pyqtSignal('QColor')
 
-	def __init__(self, color=None):
-		super().__init__()
+	def __init__(self, color=None, parent=None):
+		super().__init__(parent)
 
 		layout=QtGui.QHBoxLayout(self)
 		self.label=QtGui.QLabel(self)

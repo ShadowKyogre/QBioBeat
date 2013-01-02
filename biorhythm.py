@@ -39,7 +39,11 @@ if __name__ == "__main__":
 		try:
 			date=datetime.datetime.strptime(d,'%Y-%m-%d_%H:%M:%S')
 		except ValueError:
-			date=datetime.datetime.strptime(d,'%Y-%m-%d')
+			try:
+				date=datetime.datetime.strptime(d,'%Y-%m-%d')
+			except ValueError:
+				print(date,"does not match the format %Y-%m-%d_%H:%M:%S or %Y-%m-%d!")
+				continue
 		for k in CYCLE_PERIODS.keys():
 			print(k.title(),": ",sep="",end=" ")
 			print("{:.2f}".format(biorhythm_val(date,now,k)*100))

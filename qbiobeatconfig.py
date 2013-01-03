@@ -5,7 +5,7 @@ from datetime import datetime
 class QBioBeatConfig:
 
 	APPNAME="QBioBeat"
-	APPVERSION="0.1"
+	APPVERSION="0.1.1"
 	AUTHOR="ShadowKyogre"
 	DESCRIPTION="A small biorhythm application based on PyQt4."
 	YEAR="2012"

@@ -196,6 +196,7 @@ class QBioBeat(QtGui.QMainWindow):
 		self.plot()
 
 	def updateBG(self, val):
+		qtrcfg.bgop=val
 		colorcopy=QtGui.QColor(qtrcfg.colors["background"])
 		colorcopy.setAlpha(val)
 		self.scene.setBackgroundBrush(QtGui.QBrush(colorcopy))
@@ -323,10 +324,10 @@ def main():
 		pass
 	app = QtGui.QApplication(os.sys.argv)
 
-	app.setApplicationName("QBioBeat")
-	app.setApplicationVersion("0.1")
 	app.setWindowIcon(QtGui.QIcon.fromTheme("qbiobeat"))
 	qtrcfg = QBioBeatConfig()
+	app.setApplicationName(qtrcfg.APPNAME)
+	app.setApplicationVersion(qtrcfg.APPVERSION)
 
 	window = QBioBeat()
 	window.show()

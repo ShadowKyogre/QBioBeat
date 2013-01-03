@@ -146,14 +146,17 @@ class QBioBeat(QtGui.QMainWindow):
 			txt=self.scene.addText('Birth date: {}'.format(bdate.strftime("%m/%d/%Y - %H:%M:%S")),font=qtrcfg.font)
 			txt.setX(-box_width-5)
 			txt.setY(-halfheight/2+5)
+			txt.setDefaultTextColor(qtrcfg.colors["grid"])
 
 			txt=self.scene.addText('Start time: {}'.format(sdate.strftime("%m/%d/%Y - %H:%M:%S")),font=qtrcfg.font)
 			txt.setX(-box_width-5)
 			txt.setY(-halfheight/2+5+fm.height())
+			txt.setDefaultTextColor(qtrcfg.colors["grid"])
 
 			txt=self.scene.addText('End time: {}'.format(edate.strftime("%m/%d/%Y - %H:%M:%S")),font=qtrcfg.font)
 			txt.setX(-box_width-5)
 			txt.setY(-halfheight/2+5+2*fm.height())
+			txt.setDefaultTextColor(qtrcfg.colors["grid"])
 
 			i=0
 			for button in self.qbg.buttons():
@@ -161,6 +164,7 @@ class QBioBeat(QtGui.QMainWindow):
 						continue
 				y=-halfheight/2+5+(4+i)*fm.height()
 				txt=self.scene.addText(button.text(),font=qtrcfg.font)
+				txt.setDefaultTextColor(qtrcfg.colors["grid"])
 				rect=self.scene.addRect(-box_width/2-10,y,box_width/2,fm.height(),
 						brush=QtGui.QBrush(qtrcfg.colors[button.text().lower()]))
 				txt.setX(-box_width-5)

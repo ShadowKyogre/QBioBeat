@@ -3,6 +3,8 @@ PREFIX := /usr
 install:
 	mkdir -p $(DESTDIR)$(PREFIX)/bin/
 	mkdir -p $(DESTDIR)$(PREFIX)/share/qbiobeat
+	mkdir -p $(DESTDIR)$(PREFIX)/share/applications
+	install -Dm644 QBioBeat.desktop $(DESTDIR)$(PREFIX)/share/applications
 	install -Dm644 *.py $(DESTDIR)$(PREFIX)/share/qbiobeat
 	install -Dm755 biorhythm.py $(DESTDIR)$(PREFIX)/share/qbiobeat/biorhythm.py
 	install -Dm755 qbiobeat.py $(DESTDIR)$(PREFIX)/share/qbiobeat/qbiobeat.py

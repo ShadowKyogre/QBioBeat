@@ -1,0 +1,11 @@
+[Desktop Entry]
+Exec=qbiobeat
+GenericName[en_US]=Simple Biorhythm Analyzer
+GenericName=Simple Biorhythm Analyzer
+Icon=qbiobeat
+Name[en_US]=QBioBeat
+Name=QBioBeat
+StartupNotify=true
+Terminal=false
+Categories=Application;Accessories;Utility;
+Type=Application

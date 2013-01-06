@@ -157,7 +157,7 @@ class QBioBeat(QtGui.QMainWindow):
 			box_width=fm.maxWidth()*34
 			box_height=fm.height()*11
 
-			self.scene.addRect(-box_width-15,-halfheight,box_width+10,box_height+10,
+			self.scene.addRect(-box_width-15,-halfheight/2,box_width+10,box_height+10,
 								pen=QtGui.QPen(qtrcfg.colors["grid"]))
 
 			txt=self.scene.addText('Birth date: {}'.format(bdate.strftime("%m/%d/%Y - %H:%M:%S")),font=qtrcfg.font)
@@ -222,6 +222,9 @@ class QBioBeat(QtGui.QMainWindow):
 		qtrcfg.mcop=val
 		self.plot()
 
+	def updateEnabled(self, checked, key):
+		qtrcfg.enabled[key]=checked
+
 	def tweakAppearance(self):
 		if self.chartappearance is not None:
 			self.chartappearance.show()
@@ -277,6 +280,7 @@ class QBioBeat(QtGui.QMainWindow):
 		layout.addWidget(spinbox,i+4,1)
 
 		self.show_panel=QtGui.QCheckBox("Show chart making information?",w)
+		self.show_panel.setChecked(qtrcfg.show_panel)
 		self.show_panel.clicked.connect(self.updateShowPanel)
 		layout.addWidget(self.show_panel,i+5,0,1,2)
 		
@@ -309,8 +313,13 @@ class QBioBeat(QtGui.QMainWindow):
 		self.qbg=QtGui.QButtonGroup(vbox)
 		self.qbg.setExclusive(False)
 		self.qbg.buttonClicked.connect(self.plot)
+		#The connect wrapper is solely to deal with PyQt's odd behavior of directly
+		#connecting in a for loop...
+		connectWrapper = lambda b,k: b.clicked.connect(lambda x: self.updateEnabled(x,k))
 		for k in qtrcfg.enabled.keys():
 			b=QtGui.QCheckBox(k.title(),rhytypes)
+			b.setChecked(qtrcfg.enabled[k])
+			connectWrapper(b,k)
 			self.qbg.addButton(b)
 			vbox.addWidget(b)
 

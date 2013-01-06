@@ -1,4 +1,8 @@
-PREFIX := /usr
+ifdef ($(LOCALBASE))
+	PREFIX=$(LOCALBASE)
+else
+	PREFIX?=/usr
+endif
 
 install:
 	mkdir -p $(DESTDIR)$(PREFIX)/bin/

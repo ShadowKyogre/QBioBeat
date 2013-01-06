@@ -25,7 +25,8 @@ class QBioBeatConfig:
 			("intuition",QtGui.QColor("orange")),
 			("grid",QtGui.QColor("black")),
 			("baseline",QtGui.QColor("red")),
-			("background",QtGui.QColor("white"))])
+			("background",QtGui.QColor("white")),
+			("(mini)critical",QtGui.QColor("gray"))])
 		self.enabled=od([("physical",False),
 			("emotional",False),
 			("intellectual",False),
@@ -56,6 +57,7 @@ class QBioBeatConfig:
 
 		self.settings.beginGroup("LastChartAppearance")
 		self.bgop=self.settings.value('backgroundOpacity',0,type=int)
+		self.mcop=self.settings.value('miniCriticalOpacity',0,type=int)
 		self.height=self.settings.value('height',400,type=int)
 		self.width=self.settings.value('width',1000,type=int)
 		self.font=QtGui.QFont(self.settings.value('font',''))
@@ -70,9 +72,10 @@ class QBioBeatConfig:
 	def save_settings(self):
 		self.settings.setValue("stIconTheme",self.current_icon_override)
 		self.settings.beginGroup("LastReportSettings")
+		print(self.bdt,self.sdt,self.edt)
 		self.settings.setValue('birthday',self.bdt.strftime("%m/%d/%Y - %H:%M:%S"))
-		self.settings.setValue('startDate',self.bdt.strftime("%m/%d/%Y - %H:%M:%S"))
-		self.settings.setValue('endDate',self.bdt.strftime("%m/%d/%Y - %H:%M:%S"))
+		self.settings.setValue('startTime',self.sdt.strftime("%m/%d/%Y - %H:%M:%S"))
+		self.settings.setValue('endTime',self.edt.strftime("%m/%d/%Y - %H:%M:%S"))
 		self.settings.setValue('samplesTaken',self.samples_taken)
 		self.settings.beginGroup("patternsEnabled")
 		for k in self.enabled.keys():
@@ -82,6 +85,7 @@ class QBioBeatConfig:
 
 		self.settings.beginGroup("LastChartAppearance")
 		self.settings.setValue('backgroundOpacity',self.bgop)
+		self.settings.setValue('miniCriticalOpacity',self.mcop)
 		self.settings.setValue('height',self.height)
 		self.settings.setValue('width',self.width)
 		self.settings.setValue('font',self.font.family())

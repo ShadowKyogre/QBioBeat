@@ -21,6 +21,7 @@ class QBioBeat(QtGui.QMainWindow):
 		self.chartappearance=None
 		self.browseRhythm()
 		self.tweakAppearance()
+		self.updateBG(qtrcfg.bgop)
 
 		exitAction = QtGui.QAction(QtGui.QIcon.fromTheme('application-exit'), 'Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
@@ -42,10 +43,10 @@ class QBioBeat(QtGui.QMainWindow):
 		toolbar.addAction(saveAction)
 		#toolbar.addAction(saveIMGAction)
 
-	def close(self):
+	def closeEvent(self,event):
 		print("Saving configuration...")
 		qtrcfg.save_settings()
-		super().close()
+		super().closeEvent(event)
 
 	def saveDataAsTXT(self, filename):
 		f=open(filename,'w')
@@ -114,7 +115,10 @@ class QBioBeat(QtGui.QMainWindow):
 		qtrcfg.sdt=sdate
 		qtrcfg.edt=edate
 		days=(edate-sdate).days
-		halfheight=qtrcfg.height
+		if days <= 0:
+			return
+		halfheight=qtrcfg.height/2
+		daywidth=qtrcfg.width/days
 		for i in range(int(-halfheight),int(halfheight),int(halfheight/10)):
 				if i == 0:
 					key="baseline"
@@ -122,25 +126,38 @@ class QBioBeat(QtGui.QMainWindow):
 					key="grid"
 				self.scene.addLine(0,i,qtrcfg.width,i,pen=QtGui.QPen(qtrcfg.colors[key]))
 		for i in range(days+1):
-				j=qtrcfg.width/days*i if i > 0 else 0
+				j=daywidth*i if i > 0 else 0
 				#print(j)
 				self.scene.addLine(j,-halfheight,j,halfheight,pen=QtGui.QPen(qtrcfg.colors["grid"]))
+		sigdays=set()
 		for button in self.qbg.buttons():
 			if not button.isChecked():
 					continue
 			path=QtGui.QPainterPath()
 			cv=button.text().lower()
 			for result in biorhythm.biorhythm_intervals(bdate,sdate,edate,cv,qtrcfg.samples_taken):
-				path.lineTo(result[0]*qtrcfg.width/days,-result[1]*halfheight)
+				if abs(result[1]) <= 1E-3 or abs(result[1]) >= 0.999:
+					sigdays.add(int(result[0]))
+				path.lineTo(result[0]*daywidth,-result[1]*halfheight)
 			#print(qtrcfg.colors[cv].name())
 			self.scene.addPath(path,QtGui.QPen(qtrcfg.colors[cv]))
+		colorcopy=qtrcfg.colors["(mini)critical"]
+		colorcopy.setAlpha(qtrcfg.mcop)
+		for day in sigdays:
+			if day >= days:
+				continue
+			recy=self.scene.addRect(day*daywidth, 
+							-halfheight,daywidth, 
+							qtrcfg.height,
+							brush=QtGui.QBrush(colorcopy))
+			recy.setZValue(-666)
 		if self.show_panel.isChecked():
 			qtrcfg.font.setPixelSize(qtrcfg.height/20)
 			fm=QtGui.QFontMetrics(qtrcfg.font)
 			box_width=fm.maxWidth()*34
 			box_height=fm.height()*11
 
-			self.scene.addRect(-box_width-15,-halfheight/2,box_width+10,box_height+10,
+			self.scene.addRect(-box_width-15,-halfheight,box_width+10,box_height+10,
 								pen=QtGui.QPen(qtrcfg.colors["grid"]))
 
 			txt=self.scene.addText('Birth date: {}'.format(bdate.strftime("%m/%d/%Y - %H:%M:%S")),font=qtrcfg.font)
@@ -201,6 +218,10 @@ class QBioBeat(QtGui.QMainWindow):
 		colorcopy.setAlpha(val)
 		self.scene.setBackgroundBrush(QtGui.QBrush(colorcopy))
 
+	def updateMC(self, val):
+		qtrcfg.mcop=val
+		self.plot()
+
 	def tweakAppearance(self):
 		if self.chartappearance is not None:
 			self.chartappearance.show()
@@ -232,25 +253,32 @@ class QBioBeat(QtGui.QMainWindow):
 		layout.addWidget(QtGui.QLabel("Background Opacity"),i+1,0)
 		layout.addWidget(spinbox,i+1,1)
 
-		layout.addWidget(QtGui.QLabel("Grid height"),i+2,0)
-		layout.addWidget(QtGui.QLabel("Grid width"),i+3,0)
+		spinbox=QtGui.QSpinBox(w)
+		spinbox.setRange(0,255)
+		spinbox.setValue(qtrcfg.mcop)
+		spinbox.valueChanged[int].connect(self.updateMC)
+		layout.addWidget(QtGui.QLabel("(Mini)Critical Opacity"),i+2,0)
+		layout.addWidget(spinbox,i+2,1)
+
+		layout.addWidget(QtGui.QLabel("Grid height"),i+3,0)
+		layout.addWidget(QtGui.QLabel("Grid width"),i+4,0)
 		spinbox=QtGui.QSpinBox(w)
 		spinbox.setRange(0,2000)
 		spinbox.setValue(qtrcfg.height)
 		spinbox.setSuffix("px")
 		spinbox.valueChanged[int].connect(self.updateHeight)
-		layout.addWidget(spinbox,i+2,1)
+		layout.addWidget(spinbox,i+3,1)
 
 		spinbox=QtGui.QSpinBox(w)
 		spinbox.setRange(0,2000)
 		spinbox.setValue(qtrcfg.width)
 		spinbox.setSuffix("px")
 		spinbox.valueChanged[int].connect(self.updateWidth)
-		layout.addWidget(spinbox,i+3,1)
+		layout.addWidget(spinbox,i+4,1)
 
 		self.show_panel=QtGui.QCheckBox("Show chart making information?",w)
 		self.show_panel.clicked.connect(self.updateShowPanel)
-		layout.addWidget(self.show_panel,i+4,0,1,2)
+		layout.addWidget(self.show_panel,i+5,0,1,2)
 		
 		self.chartappearance.setWidget(w)
 		self.chartappearance.show()
@@ -269,15 +297,18 @@ class QBioBeat(QtGui.QMainWindow):
 		self.startdt=QtGui.QDateTimeEdit(w)
 		self.enddt=QtGui.QDateTimeEdit(w)
 		self.bdt=QtGui.QDateTimeEdit(w)
-		self.bdt.dateTimeChanged.connect(lambda x: self.plot())
-		self.startdt.dateTimeChanged.connect(lambda x: self.plot())
-		self.enddt.dateTimeChanged.connect(lambda x: self.plot())
+		self.startdt.setDateTime(qtrcfg.sdt)
+		self.enddt.setDateTime(qtrcfg.edt)
+		self.bdt.setDateTime(qtrcfg.bdt)
+		self.bdt.dateTimeChanged.connect(self.plot)
+		self.startdt.dateTimeChanged.connect(self.plot)
+		self.enddt.dateTimeChanged.connect(self.plot)
 		rhytypes=QtGui.QGroupBox(w)
 		rhytypes.setTitle("Rhythm Types")
 		vbox=QtGui.QVBoxLayout(rhytypes)
 		self.qbg=QtGui.QButtonGroup(vbox)
 		self.qbg.setExclusive(False)
-		self.qbg.buttonClicked.connect(lambda x: self.plot())
+		self.qbg.buttonClicked.connect(self.plot)
 		for k in qtrcfg.enabled.keys():
 			b=QtGui.QCheckBox(k.title(),rhytypes)
 			self.qbg.addButton(b)

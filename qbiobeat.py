@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from PyQt4 import QtGui,QtCore
 from collections import OrderedDict as od
 import os

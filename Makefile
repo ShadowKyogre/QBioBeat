@@ -5,7 +5,9 @@ else
 endif
 
 # checking for python
-PYTHONBIN?=$(shell which python$(shell pkg-config --modversion python3 2> /dev/null))
+PYTHONBIN?=$(shell which python3.3)
+PYTHONBIN?=$(shell which python3.2)
+PYTHONBIN?=$(shell which python3.1)
 PYTHONBIN?=$(shell which python3)
 
 ifeq ("$(PYTHONBIN)", "")

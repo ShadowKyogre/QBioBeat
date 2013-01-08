@@ -3,7 +3,7 @@ from collections import OrderedDict as od
 import os
 import datetime
 
-from . import APPNAME,APPVERSION
+from . import APPNAME,APPVERSION,AUTHOR,DESCRIPTION,YEAR,PAGE,EMAIL
 from . import core
 from . import colorbutton
 from . import fontbutton
@@ -32,15 +32,13 @@ class QBioBeat(QtGui.QMainWindow):
 		saveAction.setStatusTip('Save')
 		saveAction.triggered.connect(self.saveData)
 
-		#saveIMGAction = QtGui.QAction(QtGui.QIcon.fromTheme('document-save'), 'Save as image', self)
-		#saveIMGAction.setShortcut('Ctrl+Shift+S')
-		#saveIMGAction.setStatusTip('Save')
-		#saveIMGAction.triggered.connect(self.saveDataAsImage)
+		aboutAction=QtGui.QAction(QtGui.QIcon.fromTheme('help-about'), 'About', self)
+		aboutAction.triggered.connect(self.about)
 
 		toolbar = self.addToolBar('Exit')
 		toolbar.addAction(exitAction)
 		toolbar.addAction(saveAction)
-		#toolbar.addAction(saveIMGAction)
+		toolbar.addAction(aboutAction)
 
 	def closeEvent(self,event):
 		print("Saving configuration...")
@@ -92,7 +90,7 @@ class QBioBeat(QtGui.QMainWindow):
 
 	def saveData(self,filename=None):
 		if not filename:
-			filename=str(QtGui.QFileDialog.getSaveFileName(self, caption="Save Current Reading",
+			filename=str(QtGui.QFileDialog.getSaveFileName(self, caption="Save Current Report",
 				filter="Images (%s);;Text (*.txt)" %(' '.join(formats))))
 		if filename:
 			fmt=filename.split(".",1)[-1]
@@ -101,7 +99,7 @@ class QBioBeat(QtGui.QMainWindow):
 			elif "*.{}".format(fmt) in formats:
 				self.saveDataAsIMG(filename,fmt)
 			else:
-				QtGui.QMessageBox.critical(self, "Save Current Reading", \
+				QtGui.QMessageBox.critical(self, "Save Current Report", \
 				"Invalid format ({}) specified for {}!".format(fmt,filename))
 	
 	def plot(self):
@@ -286,6 +284,13 @@ class QBioBeat(QtGui.QMainWindow):
 		self.chartappearance.setWidget(w)
 		self.chartappearance.show()
 		self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.chartappearance)
+
+	def about(self):
+		QtGui.QMessageBox.about (self, "About {}".format(APPNAME),
+		("<center><big><b>{0} {1}</b></big>"
+		"<br />{2}<br />(C) <a href=\"mailto:{3}\">{4}</a> {5}<br />"
+		"<a href=\"{6}\">{0} Homepage</a></center>")\
+		.format(APPNAME,APPVERSION,DESCRIPTION,EMAIL,AUTHOR,YEAR,PAGE))
 
 	def browseRhythm(self):
 		if self.reportparams is not None:

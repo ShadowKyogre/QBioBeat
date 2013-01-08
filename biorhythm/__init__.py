@@ -1,5 +1,5 @@
 APPNAME="QBioBeat"
-APPVERSION="0.1.4"
+APPVERSION="0.1.5"
 AUTHOR="ShadowKyogre"
 DESCRIPTION="A small biorhythm application based on PyQt4."
 YEAR="2013"

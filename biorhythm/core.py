@@ -1,13 +1,14 @@
 import datetime
 import math
+from collections import OrderedDict as od
 
-CYCLE_PERIODS={"physical":23,
-			"emotional":28,
-			"intellectual":33,
-			"spiritual":53,
-			"awareness":48,
-			"aesthetic":43,
-			"intuition":38}
+CYCLE_PERIODS=od([("physical",23),
+			("emotional",28),
+			("intellectual",33),
+			("spiritual",53),
+			("awareness",48),
+			("aesthetic",43),
+			("intuition",38)])
 
 total_days=lambda x: x.total_seconds()/(3600*24)
 
@@ -31,7 +32,7 @@ def biorhythm_intervals(birthday,startdate,enddate,cycleval,interval=100):
 			days_passed+=gap/interval
 	return results
 
-if __name__ == "__main__":
+def main():
 	import sys
 	now=datetime.datetime.now()
 	for d in sys.argv[1:]:
@@ -47,4 +48,6 @@ if __name__ == "__main__":
 		for k in CYCLE_PERIODS.keys():
 			print(k.title(),": ",sep="",end=" ")
 			print("{:.2f}".format(biorhythm_val(date,now,k)*100))
-	
+
+if __name__ == "__main__":
+	main()

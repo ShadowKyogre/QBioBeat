@@ -2,20 +2,14 @@ from PyQt4 import QtGui,QtCore
 from collections import OrderedDict as od
 from datetime import datetime
 
-class QBioBeatConfig:
+from . import APPNAME,APPVERSION,AUTHOR,DESCRIPTION,YEAR,PAGE
 
-	APPNAME="QBioBeat"
-	APPVERSION="0.1.3"
-	AUTHOR="ShadowKyogre"
-	DESCRIPTION="A small biorhythm application based on PyQt4."
-	YEAR="2012"
-	PAGE="http://shadowkyogre.github.com/QBioBeat/"
+class QBioBeatConfig:
 
 	def __init__(self):
 		self.settings=QtCore.QSettings(QtCore.QSettings.IniFormat,
 						QtCore.QSettings.UserScope,
-						QBioBeatConfig.AUTHOR,
-						QBioBeatConfig.APPNAME)
+						AUTHOR,APPNAME)
 		self.colors=od([("physical",QtGui.QColor("pink")),
 			("emotional",QtGui.QColor("green")),
 			("intellectual",QtGui.QColor("cyan")),

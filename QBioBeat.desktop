@@ -1,5 +1,5 @@
 [Desktop Entry]
-Exec=qbiobeat
+Exec=qbiobeat.py
 GenericName[en_US]=Simple Biorhythm Analyzer
 GenericName=Simple Biorhythm Analyzer
 Icon=qbiobeat

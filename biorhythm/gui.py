@@ -70,7 +70,7 @@ class QBioBeat(QtGui.QMainWindow):
 			ndt=sdate+datetime.timedelta(d)
 			row=[ndt.strftime("%m/%d/%Y - %H:%M:%S")]
 			for cv in data_to_get:
-				result=core.core_val(bdate,ndt,cv)
+				result=core.biorhythm_val(bdate,ndt,cv)
 				row.append('{:12.2f}'.format(result*100))
 			lines.append('|'.join(row))
 		f.write('\n'.join(lines))
@@ -132,7 +132,7 @@ class QBioBeat(QtGui.QMainWindow):
 					continue
 			path=QtGui.QPainterPath()
 			cv=button.text().lower()
-			for result in core.core_intervals(bdate,sdate,edate,cv,qtrcfg.samples_taken):
+			for result in core.biorhythm_intervals(bdate,sdate,edate,cv,qtrcfg.samples_taken):
 				if abs(result[1]) <= 1E-3 or abs(result[1]) >= 0.999:
 					sigdays.add(int(result[0]))
 				path.lineTo(result[0]*daywidth,-result[1]*halfheight)

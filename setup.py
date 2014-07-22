@@ -14,6 +14,7 @@ setup(
 	author_email = EMAIL,
 	description = DESCRIPTION,
 	url = PAGE,
+	license = "GPLv3",
 	packages = ['biorhythm'],
 	scripts=['biocli.py','qbiobeat.py'],
 	data_files=[
